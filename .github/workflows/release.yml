@@ -39,14 +39,6 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
-env:
-  AZURE_CONTAINER_REGISTRY: "your-azure-container-registry"
-  CONTAINER_NAME: "your-container-name"
-  RESOURCE_GROUP: "your-resource-group"
-  CLUSTER_NAME: "your-cluster-name"
-  CHART_PATH: "your-chart-path"
-  CHART_OVERRIDE_PATH: "your-chart-override-path"
-
 jobs:
   buildImage:
     permissions:
@@ -79,48 +71,16 @@ jobs:
     needs: [buildImage]
     steps:
       # Checks out the repository this file is in
-      - uses: actions/checkout@v4
-
-      # Logs in with your Azure credentials
-      - name: Azure login
-        uses: azure/login@v1.4.6
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          fetch-depth: 0
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
-      # Use kubelogin to configure your kubeconfig for Azure auth
-      - name: Set up kubelogin for non-interactive login
-        uses: azure/use-kubelogin@v1
-        with:
-          kubelogin-version: 'v0.0.25'
-
-      # Retrieves your Azure Kubernetes Service cluster's kubeconfig file
-      - name: Get K8s context
-        uses: azure/aks-set-context@v3
-        with:
-          resource-group: ${{ env.RESOURCE_GROUP }}
-          cluster-name: ${{ env.CLUSTER_NAME }}
-          admin: 'false'
-          use-kubelogin: 'true'
-
-      # Runs Helm to create manifest files
-      - name: Bake deployment
-        uses: azure/k8s-bake@v2
-        with:
-          renderEngine: "helm"
-          helmChart: ${{ env.CHART_PATH }}
-          overrideFiles: ${{ env.CHART_OVERRIDE_PATH }}
-          overrides: |
-            replicas:2
-          helm-version: "latest"
-        id: bake
-
-      # Deploys application based on manifest files from previous step
-      - name: Deploy application
-        uses: Azure/k8s-deploy@v4
-        with:
-          action: deploy
-          manifests: ${{ steps.bake.outputs.manifestsBundle }}
-          images: |
-            ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.6.0
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
