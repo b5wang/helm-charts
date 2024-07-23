@@ -1,9 +1,20 @@
 apiVersion: v1
 entries:
+  ebank-business:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2024-07-23T12:05:33.09894+08:00"
+    description: A Helm chart for Kubernetes
+    digest: a2039ab049a3a6d46c17d71d19738438cee0875e12e919b8804b93137912f488
+    name: ebank-business
+    type: application
+    urls:
+    - ebank-business-0.1.0.tgz
+    version: 0.1.0
   ebank-confMap:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2024-07-23T11:50:52.526977+08:00"
+    created: "2024-07-23T12:05:33.100248+08:00"
     description: A Helm chart for Kubernetes
     digest: ed85b6e133873d695174a95aac7802d9f2a1f212aed8cc777969fb65262abc43
     name: ebank-confMap
@@ -11,4 +22,4 @@ entries:
     urls:
     - ebank-confMap-0.1.0.tgz
     version: 0.1.0
-generated: "2024-07-23T11:50:52.526531+08:00"
+generated: "2024-07-23T12:05:33.098103+08:00"
